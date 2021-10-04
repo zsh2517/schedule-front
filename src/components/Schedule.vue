@@ -3,23 +3,26 @@
         <div class="schedule">
             <schedule-column-empty style="width: 12.5%"/>
             <schedule-column-empty v-for="(item, index) in days" :key="index" :day-in-week="item"
-                             :times-in-day="times"
-                             :column="table[cntWeekIndex][index]"
-                             style="width: 12.5%; color: red; font-weight: bold;"
+                                   :times-in-day="times"
+                                   :column-info="table[cntWeekIndex][index]"
+                                   style="width: 12.5%; color: red; font-weight: bold;"
             />
         </div>
         <div class="schedule" style="position: fixed; top: 0; left: 0; width: 100%;">
-            <schedule-column style="width: 12.5%"/>
+            <schedule-column style="width: 12.5%"
+                             :times-in-day="times"
+                             :show-time="true"
+
+            />
             <schedule-column v-for="(item, index) in days" :key="index" :day-in-week="item"
                              :times-in-day="times"
-                             :schedule-column="table[cntWeekIndex][index]"
+                             :column-info="table[cntWeekIndex][index]"
                              :class-list="classList"
+                             :show-time="false"
                              style="width: 12.5%"
             />
         </div>
-        <div class="detail-container" style="background-color: gray;">
-
-        </div>
+        <!--        <div class="detail-container" style="background-color: gray;"></div>-->
     </div>
 </template>
 
@@ -31,6 +34,7 @@ export default {
     name: "Schedule.vue",
     components: {
         ScheduleColumn,
+        // eslint-disable-next-line vue/no-unused-components
         ScheduleColumnEmpty
     },
     data() {
@@ -43,18 +47,26 @@ export default {
             ],
             table: [
                 [
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
-                    [{from: 1, to: 2, id: 0}, {from: 3, to: 6, id: 0}, {from: 9, to: 10, id: 0},],
+                    [{from: 1, to: 2, id: 0}, {from: 3, to: 4, id: 1}, {from: 5, to: 6, id: 2},],
+                    [{from: 1, to: 2, id: 3}, {from: 3, to: 4, id: 4}, {from: 7, to: 8, id: 5},],
+                    [{from: 3, to: 4, id: 0}, {from: 5, to: 6, id: 2},],
+                    [{from: 3, to: 4, id: 4}, {from: 7, to: 8, id: 5}, {from: 5, to: 6, id: 2},],
+                    [{from: 1, to: 2, id: 0}, {from: 3, to: 4, id: 1}, {from: 5, to: 6, id: 2},],
+                    [{from: 1, to: 2, id: 0}, {from: 3, to: 4, id: 1}, {from: 5, to: 6, id: 2},],
+                    [{from: 1, to: 2, id: 0}, {from: 3, to: 4, id: 1}, {from: 5, to: 6, id: 2},],
                 ]
             ],
             cntWeekIndex: 0,
             classList: [
-                {name: "CSAPP", place: "正心 12", color: "#e7bfda"}
+                {name: "计算机网络", teacher: "李全龙", place: "正心221", bgcolor: "rgb(248,230,208)"},
+                {name: "习近平新时代中国特色社会主义思想专题辅导", teacher: "由田", place: "格物201", bgcolor: "rgb(237,223,235)"},
+                {name: "软件过程与工具", teacher: "范国祥", place: "致知11", bgcolor: "rgb(212,229,239)"},
+                {name: "移动互联网技术", teacher: "唐好选", place: "致知22", bgcolor: "rgb(226,240,218)"},
+                {name: "人工智能", teacher: "李钦策", place: "正心32", bgcolor: "rgb(246,221,213)"},
+                {name: "面向服务的软件系统", teacher: "样大易", place: "正心410", bgcolor: "rgb(231,234,234)"},
+                {name: "软件过程与工具（实验）", teacher: "范国祥", place: "致知11", bgcolor: "rgb(212,229,239)"},
+                {name: "计算机网络（实验）", teacher: "范国祥", place: "致知11", bgcolor: "rgb(212,229,239)"},
+                {name: "人工智能（实验）", teacher: "范国祥", place: "致知11", bgcolor: "rgb(246,221,213)"},
             ]
         }
     }
@@ -64,6 +76,7 @@ export default {
 <style scoped>
 .schedule-container {
     height: 100%;
+    /*background-color: lightgray;*/
 }
 
 .schedule {
