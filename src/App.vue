@@ -25,7 +25,6 @@ export default {
     color: #2c3e50;
     box-sizing: border-box;
     height: 100vh;
-    /*margin-top: 60px;*/
 }
 html, body {
     margin: 0;
