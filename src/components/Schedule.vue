@@ -45,8 +45,8 @@
                     :week-day="item[0]" :time="item[1]"
                     :clickinfo="[cntWeekIndex, item[0], item[1]]"
                     @touchstart.native="touchstart" @touchend.native="touchend"
+                    @click.native="clickItem(cntWeekIndex, item[0], item[1])"
                 >
-                    <!--                    @click.native="clickItem(cntWeekIndex, item[0], item[1])"-->
                 </schedule-empty>
             </div>
         </div>
@@ -125,15 +125,13 @@ export default {
             }
         },
         clickItem(week, day, time) {
-            console.log(week, day, time);
             let ret = utils.getClassDetail(this.classes, week, day, time);
-            let s = `选择的共 ${ret.length} 门课\n`;
+            let s = `点击了第${week}周，星期${day}，第${time}节课\n该时间共 ${ret.length} 门课\n`;
             ret.forEach(item => {
                 console.log(item.name);
                 s += item.name + '\n';
             });
             alert(s);
-            // alert(`${week} - ${day} - ${time}`);
         },
         touchstart(e) {
             // console.log("start", e);
@@ -147,7 +145,6 @@ export default {
             let deg = Math.atan2(dy, dx) / Math.PI * 180;
             // console.log(deg);
             const between = (a, b, x) => {
-                // e.preventDefault();
                 return a <= x && x <= b;
                 // return false;
             }
@@ -156,19 +153,12 @@ export default {
             }
             let dir = "";
             if (abs(dx) <= 50 && abs(dy) <= 50) {
+                e.preventDefault();
                 let l = e.target.getAttribute("clickinfo").split(",").map(item => Number(item));
                 let week = l[0];
                 let day = l[1];
                 let time = l[2];
-                let ret = utils.getClassDetail(this.classes, week, day, time);
-                let s = `点击了第${week}周，星期${day}，第${time}节课\n该时间共 ${ret.length} 门课\n`;
-                ret.forEach(item => {
-                    console.log(item.name);
-                    s += item.name + '\n';
-                });
-                alert(s);
-                // alert(`${week} - ${day} - ${time}`);
-                return false;
+                this.clickItem(week, day, time);
             }
             if (between(-45, 45, deg) && abs(dx) >= 50) {
                 dir = "R";
