@@ -1,6 +1,8 @@
 <template>
     <div class="schedule-container">
-        <div class="schedule" style="width: 100%;">
+        <div class="schedule" style="width: 100%;"
+
+        >
             <div class="schedule-title">
                 <div v-for="(item, index) in [''].concat(days)" :key="index" style="width: 100%; font-size: small;">
                     {{ item ? item : `${cntWeekIndex}周` }}
@@ -14,26 +16,38 @@
             <div class="schedule-main"
                  :style="`grid-template-rows: repeat(${nTimes}, 1fr); grid-template-columns: repeat(${nDays + 1}, 1fr);`">
                 <schedule-empty
-                    v-for="(item, index) in cross(range(1, days.length  + 1 ), range(1, times.length + 1))"
+                    v-for="(item, index) in utils.cross(utils.range(1, days.length  + 1 ), utils.range(1, times.length + 1))"
                     :key="`empty${index}`"
-                    :week-day="item[0]" :time="item[1]">
+                    :week-day="item[0]" :time="item[1]"
+                    style="z-index: 10">
                 </schedule-empty>
                 <schedule-time
                     v-for="(item, index) in times" :key="`time-${index}`"
-                    :from-time="index + 1" :to-time="index + 1" :text="item" :index="index + 1"
+                    :from-time="index + 1" :to-time="index + 1" :text="item" :index="String(index + 1)"
                     border="1px dotted #DDD"
+                    style="z-index: 20"
                 >
                     <!--                    <schedule-time-->
                     <!--                        :weekIndex="cntWeekIndex" :month=""-->
                     <!--                        border="1px dotted #DDD"-->
                     <!--                    >-->
-
                 </schedule-time>
                 <schedule-item v-for="(item, index) in timetable" :key="`normal-${index}`"
                                :week-day="item.weekDay" :from-time="item.from" :to-time="item.to"
                                :bg-color="item.bgcolor" :class-info="item.classInfo"
+                               style="z-index: 30"
                 >
                 </schedule-item>
+                <schedule-empty
+                    style="border: unset; background-color: unset; z-index: 40"
+                    v-for="(item, index) in utils.cross(utils.range(1, days.length  + 1 ), utils.range(1, times.length + 1))"
+                    :key="`cover${index}`"
+                    :week-day="item[0]" :time="item[1]"
+                    :clickinfo="[cntWeekIndex, item[0], item[1]]"
+                    @touchstart.native="touchstart" @touchend.native="touchend"
+                >
+                    <!--                    @click.native="clickItem(cntWeekIndex, item[0], item[1])"-->
+                </schedule-empty>
             </div>
         </div>
     </div>
@@ -43,8 +57,8 @@
 import ScheduleItem from "@/components/ScheduleItem";
 import ScheduleEmpty from "@/components/ScheduleEmpty";
 import ScheduleTime from "@/components/ScheduleTime";
-import ScheduleLeftTop from "@/components/ScheduleLeftTop";
-import base from "@/base";
+import config from "@/config";
+import utils from "@/utils";
 
 export default {
     name: "Schedule.vue",
@@ -52,82 +66,21 @@ export default {
         ScheduleItem,
         ScheduleEmpty,
         ScheduleTime,
-        // eslint-disable-next-line vue/no-unused-components
-        ScheduleLeftTop
     },
     data() {
         return {
-            beginDate: new Date("2021-09-06"), // 第一周周一
-            days: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
-            times: ["8:00~8:50", "8:55~9:45", "10:00~10:50", "10:55~11:45",
-                "13:45~14:35", "14:40~15:30", "15:45~16:35", "16:40~17:30",
-                "18:30~19:20", "19:25~20:15", "20:30~21:20", "21:25~22:15"
-            ],
-            // timetable: [],
+            utils,
+            beginDate: config.beginDate,
+            days: config.days,
+            times: config.times,
+            totalWeek: config.totalWeek,
             cntWeekIndex: 1,
-            classes: [
-                {
-                    name: "计算机网络", teacher: "李全龙", place: "正心221", time: [
-                        {week: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], day: 1, time: {from: 1, to: 2}}, // from to
-                        {week: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], day: 3, time: {from: 3, to: 4}}, // from to
-                    ]
-                }, {
-                    name: "习近平新时代中国特色社会主义思想专题辅导", teacher: "由田", place: "格物201", time: [
-                        {week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 3, to: 4}}, // from to
-                    ]
-                }, {
-                    name: "软件过程与工具", teacher: "范国祥", place: "致知11", time: [
-                        {week: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], day: 1, time: {from: 5, to: 6}}, // from to
-                        {week: [3, 5, 7, 9, 11, 13, 15], day: 3, time: {from: 5, to: 6}}, // from to
-                    ]
-                }, {
-                    name: "移动互联网技术", teacher: "唐好选", place: "致知22", time: [
-                        {week: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], day: 2, time: {from: 1, to: 2}}, // from to
-                        {week: [2, 4, 6, 8, 10, 12, 14, 16], day: 4, time: {from: 7, to: 8}}, // from to
-                    ]
-                }, {
-                    name: "面向服务的软件系统", teacher: "杨大易", place: "正心410", time: [
-                        {week: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], day: 2, time: {from: 7, to: 8}}, // from to
-                        {week: [3, 5, 7, 9, 11, 13, 15], day: 4, time: {from: 7, to: 8}}, // from to
-                    ]
-                }, {
-                    name: "人工智能", teacher: "李钦策", place: "正心32", time: [
-                        {week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 3, to: 4}}, // from to
-                        {week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 3, to: 4}}, // from to
-                    ]
-                },
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 1, to: 2}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 1, to: 2}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 3, time: {from: 1, to: 2}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 1, to: 2}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 5, time: {from: 1, to: 2}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 3, to: 4}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 3, to: 4}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 3, time: {from: 3, to: 4}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 3, to: 4}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 5, time: {from: 3, to: 4}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 5, to: 6}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 5, to: 6}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 3, time: {from: 5, to: 6}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 5, to: 6}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 5, time: {from: 5, to: 6}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 7, to: 8}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 7, to: 8}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 3, time: {from: 7, to: 8}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 7, to: 8}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 5, time: {from: 7, to: 8}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 9, to: 10}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 9, to: 10}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 3, time: {from: 9, to: 10}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 9, to: 10}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 5, time: {from: 9, to: 10}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 1, time: {from: 11, to: 12}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 2, time: {from: 11, to: 12}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 3, time: {from: 11, to: 12}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 4, time: {from: 11, to: 12}}]},
-                // {name: "人工智能", teacher: "李钦策", place: "正心32", time: [{week: [1, 2, 3, 4, 5, 6, 7, 8, 9], day: 5, time: {from: 11, to: 12}}]},
-
-            ]
+            classes: config.schedule,
+            config,
+            startTouch: {
+                x: 0,
+                y: 0
+            }
         }
     },
     computed: {
@@ -163,62 +116,93 @@ export default {
         }
     },
     methods: {
-        cross(a, b) {
-            let temp = [];
-            a.forEach(ia => {
-                b.forEach(ib => {
-                    temp.push([ia, ib])
-                })
-            });
-            return temp;
-        },
-        range: (start, end, length = end - start) =>
-            Array.from({length}, (_, i) => start + i)
-        ,
-        dateStr(date = null, offset = 0) {
-            let temp;
-            if (date === null) {
-                temp = new Date(this.beginDate);
-            } else {
-                temp = date;
-            }
-            temp.setDate(temp.getDate() + offset);
-            return `${temp.getMonth() + 1}.${temp.getDate()}`
-        },
+        dateStr: utils.dateStr,
+        hex2dec: utils.hex2dec,
+        hex2rgb: utils.hex2rgb,
         initClassInfo() {
-            const hex2rgb = (x) => {
-                const hex2dec = (num) => {
-                    num = num.toLowerCase();
-                    let dict = "0123456789abcdef";
-                    return dict.indexOf(num[0]) * 16 + dict.indexOf(num[1]);
-                }
-                x = x.replace("#", "").trim();
-                return [
-                    hex2dec(x.substr(0, 2)),
-                    hex2dec(x.substr(2, 2)),
-                    hex2dec(x.substr(4, 2)),
-                ]
-            }
             for (let i = 0; i < this.classes.length; i++) {
-                this.classes[i].bgcolor = hex2rgb(base.theme.normal[i]);
-                console.log("！！！！", base.theme.normal[i], this.classes[i].bgcolor);
+                this.classes[i].bgcolor = this.hex2rgb(config.theme.normal[i]);
             }
+        },
+        clickItem(week, day, time) {
+            console.log(week, day, time);
+            let ret = utils.getClassDetail(this.classes, week, day, time);
+            let s = `选择的共 ${ret.length} 门课\n`;
+            ret.forEach(item => {
+                console.log(item.name);
+                s += item.name + '\n';
+            });
+            alert(s);
+            // alert(`${week} - ${day} - ${time}`);
+        },
+        touchstart(e) {
+            // console.log("start", e);
+            this.startTouch.x = e.touches[0].pageX;
+            this.startTouch.y = e.touches[0].pageY;
+        },
+        touchend(e) {
+            console.log("end", e);
+            let dx = e.changedTouches[0].pageX - this.startTouch.x;
+            let dy = e.changedTouches[0].pageY - this.startTouch.y;
+            let deg = Math.atan2(dy, dx) / Math.PI * 180;
+            // console.log(deg);
+            const between = (a, b, x) => {
+                // e.preventDefault();
+                return a <= x && x <= b;
+                // return false;
+            }
+            const abs = x => {
+                return x > 0 ? x : -x;
+            }
+            let dir = "";
+            if (abs(dx) <= 50 && abs(dy) <= 50) {
+                let l = e.target.getAttribute("clickinfo").split(",").map(item => Number(item));
+                let week = l[0];
+                let day = l[1];
+                let time = l[2];
+                let ret = utils.getClassDetail(this.classes, week, day, time);
+                let s = `点击了第${week}周，星期${day}，第${time}节课\n该时间共 ${ret.length} 门课\n`;
+                ret.forEach(item => {
+                    console.log(item.name);
+                    s += item.name + '\n';
+                });
+                alert(s);
+                // alert(`${week} - ${day} - ${time}`);
+                return false;
+            }
+            if (between(-45, 45, deg) && abs(dx) >= 50) {
+                dir = "R";
+                this.switchPrevWeek();
+            }
+            if ((between(135, 180, deg) || between(-180, -135, deg)) && abs(dx) >= 50) {
+                dir = "L";
+                this.switchNextWeek();
+            }
+            if (between(-135, -45, deg) && abs(dy) >= 50) {
+                dir = "T";
+            }
+            if (between(45, 135, deg) && abs(dy) >= 50) {
+                dir = "B";
+            }
+            console.log(dir);
         },
         switchToWeek(week) {
-            // if(week < 0 || week > nWeeks)
+            if (week <= 0 || week > this.totalWeek) {
+                return;
+            }
             this.cntWeekIndex = week;
         },
         switchNextWeek() {
-            this.cntWeekIndex += 1;
+            this.switchToWeek(this.cntWeekIndex + 1);
         },
         switchPrevWeek() {
-            this.cntWeekIndex -= 1;
+            this.switchToWeek(this.cntWeekIndex - 1);
         }
-    },
+    }
+    ,
     mounted() {
         this.initClassInfo();
         this.cntWeekIndex = 5;
-        this.renderWeek();
     }
 }
 </script>

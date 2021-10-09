@@ -2,8 +2,10 @@
     <div class="item-normal"
          :style="`grid-row: ${fromTime} / ${toTime + 1}; grid-column: ${weekDay + 1};
          background-color: rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, 0.6)`">
-        {{ classInfo.name }}<br>{{ classInfo.place }}<br>
-<!--        {{classInfo.bgcolor}}-->
+        <div style="width: 100%; height: 100%; overflow-y: hidden;">
+            {{ classInfo.name }}<br>{{ classInfo.place }}<br>
+        </div>
+        <!--        {{classInfo.bgcolor}}-->
     </div>
 </template>
 
@@ -21,8 +23,8 @@ export default {
         return {}
     },
     mounted() {
-        console.log("qwerty");
-        console.log(this.props);
+        // console.log("qwerty");
+        // console.log(this.props);
     },
     computed: {},
     methods: {}
@@ -34,7 +36,7 @@ export default {
     border-radius: 5px;
     /*background-color: #DDDDDD;*/
     border: 1px dotted #DDD;
-    line-break: anywhere;
+    line-break: strict;
     font-size: 12px;
     padding: 2px;
     overflow: hidden;

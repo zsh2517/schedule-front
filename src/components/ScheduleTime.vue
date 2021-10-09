@@ -2,8 +2,8 @@
     <div class="item-normal"
          :style="`grid-row: ${fromTime} / ${toTime + 1}; grid-column: 1;
          ${css_bgColor} ${css_border}`">
-        <div style="font-size: larger;">{{ index }}</div>
         <div>{{ text.split("~")[0] }}</div>
+        <div style="font-size: larger;">{{ index }}</div>
         <!--        {{classInfo.bgcolor}}-->
     </div>
 </template>
@@ -23,8 +23,8 @@ export default {
         return {}
     },
     mounted() {
-        console.log("qwerty");
-        console.log(this.props);
+        // console.log("qwerty");
+        // console.log(this.props);
     },
     computed: {
         css_bgColor() {
