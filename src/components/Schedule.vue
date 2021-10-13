@@ -59,7 +59,7 @@ import ScheduleEmpty from "@/components/ScheduleEmpty";
 import ScheduleTime from "@/components/ScheduleTime";
 import config from "@/config";
 import utils from "@/utils";
-
+import axios from "axios";
 export default {
     name: "Schedule.vue",
     components: {
@@ -194,6 +194,20 @@ export default {
     }
     ,
     mounted() {
+        window.HWH5.getAuthCode().then(function (data) {
+            axios.get("/api/welinkcallback", {
+                params: {
+                    code: data.code,
+                },
+            })
+            .then(function (data) {
+                // login success
+                console.log(data.message);
+            })
+            .catch(function (err) {
+                console.error(err.message);
+            });
+        });
         this.initClassInfo();
         this.cntWeekIndex = 5;
     }
