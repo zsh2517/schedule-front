@@ -74,7 +74,7 @@ export default {
             days: config.days,
             times: config.times,
             totalWeek: config.totalWeek,
-            cntWeekIndex: 1,
+            cntWeekIndex: 0,
             classes: config.schedule,
             config,
             startTouch: {
@@ -96,6 +96,9 @@ export default {
             return d;
         },
         timetable() {
+            if (this.cntWeekIndex === 0) {
+                return [];
+            }
             let table = [];
             for (let i = 0; i < this.classes.length; i++) {
                 let c = this.classes[i];
