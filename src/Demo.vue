@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button @click="test">test</button>
+        
     </div>
 </template>
 
@@ -9,14 +9,18 @@ import axios from 'axios';
 export default {
     name: "Demo",
     methods: {
-        test: function () {
-            axios.get("https://example.com/").then((resp) => {
-                console.log(resp)
+        login: function () {
+            axios.get("/api/demo").then((resp) => {
+                console.log(resp.message);
+                this.$router.push('schedule');
+            }).catch((err) => {
+                console.error(err);
+                this.$router.push('schedule');
             })
         }
     },
     mounted: function() {
-
+        this.login();
     }
 }
 </script>
